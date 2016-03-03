@@ -2,6 +2,7 @@ def binary_threshold(image, thresh=128):
     if thresh > 1:
         thresh /= 255.0
     size = image.size
+    print thresh
     for x in xrange(size[0]):
        for y in xrange(size[1]):
            pixel = image.getpixel((x, y))
