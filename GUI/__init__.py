@@ -62,6 +62,7 @@ def main_window():
     filtersMenu.add_command(label="Grayscale", command=convert_to_grayscale_gui)
     filtersMenu.add_command(label="To Binary", command=convert_to_binary_ask)
     filtersMenu.add_command(label="Invert Image", command=invert_image_gui)
+    filtersMenu.add_command(label="Change Bright", command=change_bright_ask)
     menu.add_cascade(menu=filtersMenu, label="Filters")
 
     # -- Tools Submenu-- #
@@ -110,4 +111,23 @@ def convert_to_binary_ask():
 
 def invert_image_gui():
     img = general.invert_image(global_variables['working_image'])
+    update_image(img)
+
+
+def change_bright_ask():
+    option_pane = tk.Tk()
+    tk.Label(option_pane, text="Select Threshold").pack()
+    global_variables['bright_scale'] = tk.Scale(option_pane, from_=-255, to=255, orient=tk.HORIZONTAL)
+    global_variables['bright_scale'].pack()
+    tk.Button(option_pane, text="Preview", command=preview_change_bright).pack(side=tk.LEFT)
+    tk.Button(option_pane, text="Apply", command=change_bright_gui).pack(side=tk.LEFT)
+
+def preview_change_bright():
+    value = int(global_variables['bright_scale'].get())
+    img = general.change_brightness(global_variables['working_image'].copy(), value)
+    img.show()
+
+def change_bright_gui():
+    value = int(global_variables['bright_scale'].get())
+    img = general.change_brightness(global_variables['working_image'], value)
     update_image(img)

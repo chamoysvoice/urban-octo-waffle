@@ -45,6 +45,16 @@ def invert_image(image, debug=False, printable=False):
         print
     return image
 
+def change_brightness(image, value):
+    size = image.size
+    for x in xrange(size[0]):
+        for y in xrange(size[1]):
+            pixel = image.getpixel((x, y))
+            v = min(pixel[0] + value, 255)
+            v = max(0, v)
+            image.putpixel((x, y), (v, v, v))
+    return image
+
 # def change_brightness(image, amount):
 #     if(amount > 255):
 #         amount = 255
