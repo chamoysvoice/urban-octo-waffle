@@ -55,6 +55,16 @@ def change_brightness(image, value):
             image.putpixel((x, y), (v, v, v))
     return image
 
+def stretch_contrast(image, beta, gamma):
+    size = image.size
+    for x in xrange(size[0]):
+        for y in xrange(size[1]):
+            pixel = image.getpixel((x, y))
+            P0 = int(pixel[0] * beta + gamma)
+            P0 = min(P0, 255)
+            P0 = max(0, P0)
+            image.putpixel((x, y), (P0, P0, P0))
+    return image
 # def change_brightness(image, amount):
 #     if(amount > 255):
 #         amount = 255
