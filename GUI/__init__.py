@@ -63,6 +63,7 @@ def main_window():
     filtersMenu.add_command(label="To Binary", command=convert_to_binary_ask)
     filtersMenu.add_command(label="Invert Image", command=invert_image_gui)
     filtersMenu.add_command(label="Change Bright", command=change_bright_ask)
+    filtersMenu.add_command(label="Stretch Contrast", command=stretch_contrast_ask)
     menu.add_cascade(menu=filtersMenu, label="Filters")
 
     # -- Tools Submenu-- #
@@ -115,13 +116,13 @@ def invert_image_gui():
 
 
 def change_bright_ask():
+
     option_pane = tk.Tk()
     tk.Label(option_pane, text="Select Threshold").pack()
     global_variables['bright_scale'] = tk.Scale(option_pane, from_=-255, to=255, orient=tk.HORIZONTAL)
     global_variables['bright_scale'].pack()
     tk.Button(option_pane, text="Preview", command=preview_change_bright).pack(side=tk.LEFT)
     tk.Button(option_pane, text="Apply", command=change_bright_gui).pack(side=tk.LEFT)
-
 def preview_change_bright():
     value = int(global_variables['bright_scale'].get())
     img = general.change_brightness(global_variables['working_image'].copy(), value)
@@ -130,4 +131,27 @@ def preview_change_bright():
 def change_bright_gui():
     value = int(global_variables['bright_scale'].get())
     img = general.change_brightness(global_variables['working_image'], value)
+    update_image(img)
+
+def stretch_contrast_ask():
+    option_pane = tk.Tk()
+    tk.Label(option_pane, text="Select Beta").pack()
+    global_variables['contrast_beta'] = tk.Scale(option_pane, from_=0, to=1, resolution=0.05, orient=tk.HORIZONTAL)
+    global_variables['contrast_beta'].pack()
+    tk.Label(option_pane, text="Select Gamma").pack()
+    global_variables['contrast_gamma'] = tk.Scale(option_pane, from_=0, to=255, orient=tk.HORIZONTAL)
+    global_variables['contrast_gamma'].pack()
+    tk.Button(option_pane, text="Preview", command=preview_stretch_contrast).pack(side=tk.LEFT)
+    tk.Button(option_pane, text="Apply", command=stretch_contrast_gui).pack(side=tk.LEFT)
+
+def preview_stretch_contrast():
+    beta = float(global_variables['contrast_beta'].get())
+    gamma = int(global_variables['contrast_gamma'].get())
+    img = general.stretch_contrast(global_variables['working_image'].copy(), beta, gamma)
+    img.show()
+
+def stretch_contrast_gui():
+    beta = float(global_variables['contrast_beta'].get())
+    gamma = int(global_variables['contrast_gamma'].get())
+    img = general.stretch_contrast(global_variables['working_image'].copy(), beta, gamma)
     update_image(img)
