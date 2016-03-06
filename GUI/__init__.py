@@ -31,7 +31,6 @@ def getfilename():
         global_variables['img_path'] = v.name
         main_window()
 
-
 def main_window():
     global_variables['root_window'].destroy()
     main_gui_window = tk.Tk()
@@ -52,7 +51,7 @@ def main_window():
     # -- Main Submenu -- #
     mainMenu = tk.Menu(menu)
     mainMenu.add_command(label="Open file", command=main_gui_window.destroy)
-    mainMenu.add_command(label="Save file", command=main_gui_window.destroy)
+    mainMenu.add_command(label="Save file", command=savefile)
     mainMenu.add_separator()
     mainMenu.add_command(label="Exit", command=main_gui_window.destroy)
     menu.add_cascade(menu=mainMenu, label="Menu")
@@ -86,6 +85,11 @@ def update_image(img):
     global_variables['image_label'].configure(image=photo)
     global_variables['image_label'].image = photo
 
+def savefile():
+    indir = "../" + path.dirname(path.realpath(__file__))
+    output = tkFileDialog.asksaveasfilename(filetypes=[('PNG', '.png'), ('JPG', '.jpg')], initialfile='newfile', initialdir=indir)
+    if output:
+        global_variables['working_image'].save(output)
 
 def convert_to_grayscale_gui():
     img = general.convert_to_grayscale(global_variables['working_image'])
@@ -137,7 +141,7 @@ def change_bright_gui():
 def stretch_contrast_ask():
     option_pane = tk.Tk()
     tk.Label(option_pane, text="Select Beta").pack()
-    global_variables['contrast_beta'] = tk.Scale(option_pane, from_=-1, to=1, resolution=0.10, orient=tk.HORIZONTAL)
+    global_variables['contrast_beta'] = tk.Scale(option_pane, from_=-1, to=1, resolution=0.01, orient=tk.HORIZONTAL)
     global_variables['contrast_beta'].pack()
     tk.Label(option_pane, text="Select Gamma").pack()
     global_variables['contrast_gamma'] = tk.Scale(option_pane, from_=-255, to=255, orient=tk.HORIZONTAL)
@@ -159,23 +163,23 @@ def stretch_contrast_gui():
 
 def clear_ask():
     option_pane = tk.Tk()
-    tk.Label(option_pane, text="Select minimum intensity").pack()
-    global_variables['clear_minimum_level'] = tk.Scale(option_pane, from_=0, to=255, orient=tk.HORIZONTAL)
-    global_variables['clear_minimum_level'].pack()
-    tk.Label(option_pane, text="Select maximum intensity").pack()
-    global_variables['clear_maximum_level'] = tk.Scale(option_pane, from_=0, to=255, orient=tk.HORIZONTAL)
-    global_variables['clear_maximum_level'].pack()
+    tk.Label(option_pane, text="Select minimum luminance").pack()
+    global_variables['clear_minimum_luminance'] = tk.Scale(option_pane, from_=0, to=255, orient=tk.HORIZONTAL)
+    global_variables['clear_minimum_luminance'].pack()
+    tk.Label(option_pane, text="Select maximum luminance").pack()
+    global_variables['clear_maximum_luminance'] = tk.Scale(option_pane, from_=0, to=255, orient=tk.HORIZONTAL)
+    global_variables['clear_maximum_luminance'].pack()
     tk.Button(option_pane, text="Preview", command=preview_clear).pack(side=tk.LEFT)
     tk.Button(option_pane, text="Apply", command=clear_gui).pack(side=tk.LEFT)
 
 def preview_clear():
-    min_level = int(global_variables['clear_minimum_level'].get())
-    max_level = int(global_variables['clear_maximum_level'].get())
-    img = general.clear(global_variables['working_image'].copy(), min_level, max_level)
+    min_luminance = int(global_variables['clear_minimum_luminance'].get())
+    max_luminance = int(global_variables['clear_maximum_luminance'].get())
+    img = general.clear(global_variables['working_image'].copy(), min_luminance, max_luminance)
     img.show()
 
 def clear_gui():
-    min_level = int(global_variables['clear_minimum_level'].get())
-    max_level = int(global_variables['clear_maximum_level'].get())
-    img = general.clear(global_variables['working_image'], min_level, max_level)
+    min_luminance = int(global_variables['clear_minimum_luminance'].get())
+    max_luminance = int(global_variables['clear_maximum_luminance'].get())
+    img = general.clear(global_variables['working_image'], min_luminance, max_luminance)
     update_image(img)

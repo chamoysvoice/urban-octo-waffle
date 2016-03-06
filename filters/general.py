@@ -66,13 +66,13 @@ def stretch_contrast(image, beta, gamma):
             image.putpixel((x, y), (P0, P0, P0))
     return image
 
-def clear(image, min_level, max_level):
+def clear(image, min_luminance, max_luminance):
     size = image.size
     for x in xrange(size[0]):
         for y in xrange(size[1]):
             pixel = image.getpixel((x, y))
-            P0 = min(pixel[0], min_level)
-            P0 = max(pixel[0], max_level)
+            P0 = max(pixel[0], min_luminance)
+            P0 = min(pixel[0], max_luminance)
             image.putpixel((x, y), (P0, P0, P0))
     return image
 # def change_brightness(image, amount):
