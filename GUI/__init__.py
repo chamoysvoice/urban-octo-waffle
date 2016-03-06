@@ -64,6 +64,7 @@ def main_window():
     filtersMenu.add_command(label="Invert Image", command=invert_image_gui)
     filtersMenu.add_command(label="Change Bright", command=change_bright_ask)
     filtersMenu.add_command(label="Stretch Contrast", command=stretch_contrast_ask)
+    filtersMenu.add_command(label="Clear image", command=clear_ask)
     menu.add_cascade(menu=filtersMenu, label="Filters")
 
     # -- Tools Submenu-- #
@@ -136,10 +137,10 @@ def change_bright_gui():
 def stretch_contrast_ask():
     option_pane = tk.Tk()
     tk.Label(option_pane, text="Select Beta").pack()
-    global_variables['contrast_beta'] = tk.Scale(option_pane, from_=0, to=1, resolution=0.05, orient=tk.HORIZONTAL)
+    global_variables['contrast_beta'] = tk.Scale(option_pane, from_=-1, to=1, resolution=0.10, orient=tk.HORIZONTAL)
     global_variables['contrast_beta'].pack()
     tk.Label(option_pane, text="Select Gamma").pack()
-    global_variables['contrast_gamma'] = tk.Scale(option_pane, from_=0, to=255, orient=tk.HORIZONTAL)
+    global_variables['contrast_gamma'] = tk.Scale(option_pane, from_=-255, to=255, orient=tk.HORIZONTAL)
     global_variables['contrast_gamma'].pack()
     tk.Button(option_pane, text="Preview", command=preview_stretch_contrast).pack(side=tk.LEFT)
     tk.Button(option_pane, text="Apply", command=stretch_contrast_gui).pack(side=tk.LEFT)
@@ -153,5 +154,28 @@ def preview_stretch_contrast():
 def stretch_contrast_gui():
     beta = float(global_variables['contrast_beta'].get())
     gamma = int(global_variables['contrast_gamma'].get())
-    img = general.stretch_contrast(global_variables['working_image'].copy(), beta, gamma)
+    img = general.stretch_contrast(global_variables['working_image'], beta, gamma)
+    update_image(img)
+
+def clear_ask():
+    option_pane = tk.Tk()
+    tk.Label(option_pane, text="Select minimum intensity").pack()
+    global_variables['clear_minimum_level'] = tk.Scale(option_pane, from_=0, to=255, orient=tk.HORIZONTAL)
+    global_variables['clear_minimum_level'].pack()
+    tk.Label(option_pane, text="Select maximum intensity").pack()
+    global_variables['clear_maximum_level'] = tk.Scale(option_pane, from_=0, to=255, orient=tk.HORIZONTAL)
+    global_variables['clear_maximum_level'].pack()
+    tk.Button(option_pane, text="Preview", command=preview_clear).pack(side=tk.LEFT)
+    tk.Button(option_pane, text="Apply", command=clear_gui).pack(side=tk.LEFT)
+
+def preview_clear():
+    min_level = int(global_variables['clear_minimum_level'].get())
+    max_level = int(global_variables['clear_maximum_level'].get())
+    img = general.clear(global_variables['working_image'].copy(), min_level, max_level)
+    img.show()
+
+def clear_gui():
+    min_level = int(global_variables['clear_minimum_level'].get())
+    max_level = int(global_variables['clear_maximum_level'].get())
+    img = general.clear(global_variables['working_image'], min_level, max_level)
     update_image(img)
