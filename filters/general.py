@@ -75,20 +75,60 @@ def clear(image, min_luminance, max_luminance):
             P0 = min(pixel[0], max_luminance)
             image.putpixel((x, y), (P0, P0, P0))
     return image
-# def change_brightness(image, amount):
-#     if(amount > 255):
-#         amount = 255
-#     elif(amount < -255):
-#         amount = -255
-#     size = image.size
-#
-#     min_val = 255
-#     max_val = 0
-#
-#     for x in xrange(size[0]):
-#         for y in xrange(size[1]):
-#             pixel = image.getpixel((x,y))
-#             if pixel[0] > max_val:
-#                 max_val = pixel[0]
-#             if pixel[0] < min_val:
-#
+
+def median(image):
+    size = image.size
+    for x in xrange(1, size[0] - 1):
+        for y in xrange(1, size[1] - 1):
+            n = []
+            for dx in [-1, 0, 1]:
+                for dy in [-1, 0, 1]:
+                    if dx != 0 and dy != 0:
+                        n.append(image.getpixel((x + dx, y + dy))[0])
+            max_p = max(n)
+            min_p = min(n)
+            if(image.getpixel((x, y))[0] < min_p):
+                i = min_p
+            elif(image.getpixel((x, y))[0] > max_p):
+                i = max_p
+            else:
+                i = image.getpixel((x, y))[0]
+            image.putpixel((x, y), (i, i, i))
+    #debug
+    print "Median Filter"
+    return image
+
+def mean(image):
+    size = image.size
+    for x in xrange(1, size[0] - 1):
+        for y in xrange(1, size[1] - 1):
+            n = []
+            for dx in [-1, 0, 1]:
+                for dy in [-1, 0, 1]:
+                    n.append(image.getpixel((x + dx, y + dy))[0])
+            i = sum(n) / len(n)
+            image.putpixel((x, y), (i, i, i))
+    #debug
+    print "Mean Filter"
+    return image
+
+def salt_pepper(image):
+    size = image.size
+    for x in xrange(1, size[0] - 1):
+        for y in xrange(1, size[1] - 1):
+            n = []
+            for dx in [-1, 0, 1]:
+                for dy in [-1, 0, 1]:
+                    n.append(image.getpixel((x + dx, y + dy))[0])
+            center = n[4]
+            del n[4]
+            if abs(center - (sum(n) / len(n))) > 60:
+                i = sum(n) / len(n)
+            else:
+                i = center
+            image.putpixel((x, y), (i, i, i))
+    #debug
+    print "Salt Pepper Filter"
+    return image
+
+def

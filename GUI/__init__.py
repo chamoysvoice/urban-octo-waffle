@@ -34,6 +34,7 @@ def getfilename():
 def main_window():
     global_variables['root_window'].destroy()
     main_gui_window = tk.Tk()
+    global_variables['main_window'] = main_gui_window
     main_gui_window.title(global_variables['img_path'])
     img = Image.open(global_variables['img_path'])
     global_variables['working_image'] = rz.resize(img)
@@ -50,7 +51,7 @@ def main_window():
     main_gui_window.config(menu=menu)
     # -- Main Submenu -- #
     mainMenu = tk.Menu(menu)
-    mainMenu.add_command(label="Open file", command=main_gui_window.destroy)
+    mainMenu.add_command(label="Open file", command=openfile)
     mainMenu.add_command(label="Save file", command=savefile)
     mainMenu.add_separator()
     mainMenu.add_command(label="Exit", command=main_gui_window.destroy)
@@ -64,6 +65,9 @@ def main_window():
     filtersMenu.add_command(label="Change Bright", command=change_bright_ask)
     filtersMenu.add_command(label="Stretch Contrast", command=stretch_contrast_ask)
     filtersMenu.add_command(label="Clear image", command=clear_ask)
+    filtersMenu.add_command(label="Median Filter", command=median_gui)
+    filtersMenu.add_command(label="Mean Filter", command=mean_gui)
+    filtersMenu.add_command(label="Salt Pepper Filter", command=salt_pepper_gui)
     menu.add_cascade(menu=filtersMenu, label="Filters")
 
     # -- Tools Submenu-- #
@@ -74,6 +78,10 @@ def main_window():
     # -- MainLoop -- #
     main_gui_window.mainloop()
 
+
+def openfile():
+    global_variables['main_window'].destroy()
+    init_screen()
 
 def show_hist():
     hist.hist(global_variables['working_image'])
@@ -182,4 +190,16 @@ def clear_gui():
     min_luminance = int(global_variables['clear_minimum_luminance'].get())
     max_luminance = int(global_variables['clear_maximum_luminance'].get())
     img = general.clear(global_variables['working_image'], min_luminance, max_luminance)
+    update_image(img)
+
+def median_gui():
+    img = general.median(global_variables['working_image'])
+    update_image(img)
+
+def salt_pepper_gui():
+    img = general.salt_pepper(global_variables['working_image'])
+    update_image(img)
+
+def mean_gui():
+    img = general.mean(global_variables['working_image'])
     update_image(img)
