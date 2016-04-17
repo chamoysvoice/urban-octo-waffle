@@ -130,5 +130,3 @@ def salt_pepper(image):
     #debug
     print "Salt Pepper Filter"
     return image
-
-def
