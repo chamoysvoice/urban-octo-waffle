@@ -73,6 +73,7 @@ def main_window():
     # -- Tools Submenu-- #
     toolsMenu = tk.Menu(menu)
     toolsMenu.add_command(label="Plot Histogram", command=show_hist)
+    toolsMenu.add_command(label="Find neighborhoods", command=neighborhoods_ask)
     menu.add_cascade(menu=toolsMenu, label="Tools")
 
     # -- MainLoop -- #
@@ -136,6 +137,7 @@ def change_bright_ask():
     global_variables['bright_scale'].pack()
     tk.Button(option_pane, text="Preview", command=preview_change_bright).pack(side=tk.LEFT)
     tk.Button(option_pane, text="Apply", command=change_bright_gui).pack(side=tk.LEFT)
+
 def preview_change_bright():
     value = int(global_variables['bright_scale'].get())
     img = general.change_brightness(global_variables['working_image'].copy(), value)
@@ -203,3 +205,15 @@ def salt_pepper_gui():
 def mean_gui():
     img = general.mean(global_variables['working_image'])
     update_image(img)
+
+def neighborhoods_ask():
+    option_pane = tk.Tk()
+    tk.Label(option_pane, text="Select threshold").pack()
+    global_variables['neighbor_threshold'] = tk.Scale(option_pane, from_=1, to=255, orient=tk.HORIZONTAL)
+    global_variables['neighbor_threshold'].pack()
+    tk.Button(option_pane, text="Apply", command=preview_neighborhoods).pack(side=tk.LEFT)
+
+def preview_neighborhoods():
+    threshold = int(global_variables['neighbor_threshold'].get())
+    img = general.neighborhoods(global_variables['working_image'].copy(), threshold)
+    img.show()

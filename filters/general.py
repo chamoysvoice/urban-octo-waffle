@@ -131,4 +131,51 @@ def salt_pepper(image):
     print "Salt Pepper Filter"
     return image
 
-def
+def neighborhoods(image, threshold):
+    size = image.size
+    #neighborhood_image = Image.new("L", size, "white")
+    tags_matrix = [[0 for x in range(size[1])] for x in range(size[0])]         #Inicialmente llena de ceros (no hay vecindarios)
+    tag = 1
+    for x in xrange(1, size[0] - 1):
+            for y in xrange(1, size[1] - 1):
+                    pixel = image.getpixel((x, y))[0]
+                    tags_matrix[x][y] = tag                                       #Se inicializa un vecindario
+                    neighborhood = [image.getpixel((x , y - 1))[0],               #top neighbor
+                                image.getpixel((x + 1, y - 1))[0],                #top-right neighbor
+                                image.getpixel((x + 1, y))[0],                    #right neighbor
+                                image.getpixel((x + 1, y + 1))[0],                #bottom-right neighbor
+                                image.getpixel((x, y + 1))[0],                    #bottom neighbor
+                                image.getpixel((x - 1, y + 1))[0],                #bottom-left neighbor
+                                image.getpixel((x - 1, y))[0],                    #left neighbor
+                                image.getpixel((x - 1, y - 1))[0]]                #top-left neighbor
+                    for index in xrange(len(neighborhood)):
+                        if abs(pixel - neighborhood[index]) <= threshold:
+                            if index == 0:
+                                coords = (x , y - 1)
+                            elif index == 1:
+                                coords = (x + 1, y - 1)
+                            elif index == 2:
+                                coords = (x + 1, y)
+                            elif index == 3:
+                                coords = (x + 1, y + 1)
+                            elif index == 4:
+                                coords = (x, y + 1)
+                            elif index == 5:
+                                coords = (x - 1, y + 1)
+                            elif index == 6:
+                                coords = (x - 1, y)
+                            elif index == 7:
+                                coords = (x - 1, y - 1)
+                            if tags_matrix[ coords[0] ][ coords[1] ] == 0:          #Si el pixel con esas coordenas no pertenece a ningun otro vecindario se le pone una etiqueta para el vecindario del cual formara parte
+                                tags_matrix[ coords[0] ][ coords[1] ] = tag
+                            else:                                                   #Si se econtro un vecino pero este ya forma parte de un vecindario, el pivote se incluira a ese vecindario
+                                tags_matrix[x][y] = tags_matrix[ coords[0] ][ coords[1] ]
+                        else:
+                            tag += 1                                            #Nueva etiqueta para vecindario
+    f = open("/home/omar/Downloads/urban-octo-waffle/vecindades/vecindades.txt", "w")
+    for m in xrange(size[0]):
+        for n in xrange(size[1]):
+            f.write(str(tags_matrix[m][n]) + " ")
+        f.write("\n")
+    f.close()
+    return image
