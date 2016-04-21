@@ -133,49 +133,86 @@ def salt_pepper(image):
 
 def neighborhoods(image, threshold):
     size = image.size
-    #neighborhood_image = Image.new("L", size, "white")
-    tags_matrix = [[0 for x in range(size[1])] for x in range(size[0])]         #Inicialmente llena de ceros (no hay vecindarios)
-    tag = 1
-    for x in xrange(1, size[0] - 1):
-            for y in xrange(1, size[1] - 1):
-                    pixel = image.getpixel((x, y))[0]
-                    tags_matrix[x][y] = tag                                       #Se inicializa un vecindario
-                    neighborhood = [image.getpixel((x , y - 1))[0],               #top neighbor
-                                image.getpixel((x + 1, y - 1))[0],                #top-right neighbor
-                                image.getpixel((x + 1, y))[0],                    #right neighbor
-                                image.getpixel((x + 1, y + 1))[0],                #bottom-right neighbor
-                                image.getpixel((x, y + 1))[0],                    #bottom neighbor
-                                image.getpixel((x - 1, y + 1))[0],                #bottom-left neighbor
-                                image.getpixel((x - 1, y))[0],                    #left neighbor
-                                image.getpixel((x - 1, y - 1))[0]]                #top-left neighbor
-                    for index in xrange(len(neighborhood)):
-                        if abs(pixel - neighborhood[index]) <= threshold:
-                            if index == 0:
-                                coords = (x , y - 1)
-                            elif index == 1:
-                                coords = (x + 1, y - 1)
-                            elif index == 2:
-                                coords = (x + 1, y)
-                            elif index == 3:
-                                coords = (x + 1, y + 1)
-                            elif index == 4:
-                                coords = (x, y + 1)
-                            elif index == 5:
-                                coords = (x - 1, y + 1)
-                            elif index == 6:
-                                coords = (x - 1, y)
-                            elif index == 7:
-                                coords = (x - 1, y - 1)
-                            if tags_matrix[ coords[0] ][ coords[1] ] == 0:          #Si el pixel con esas coordenas no pertenece a ningun otro vecindario se le pone una etiqueta para el vecindario del cual formara parte
-                                tags_matrix[ coords[0] ][ coords[1] ] = tag
-                            else:                                                   #Si se econtro un vecino pero este ya forma parte de un vecindario, el pivote se incluira a ese vecindario
-                                tags_matrix[x][y] = tags_matrix[ coords[0] ][ coords[1] ]
-                        else:
-                            tag += 1                                            #Nueva etiqueta para vecindario
-    f = open("/home/omar/Downloads/urban-octo-waffle/vecindades/vecindades.txt", "w")
+    tag = 0
+    x = y = 0
+    tags_matrix = [[0 for a in range(size[0])] for b in range(size[1])]         #Inicialmente llena de ceros (no hay vecindarios)
+    neighbors_dictionary = {
+        0: (x + 1, y),      #right neighbor
+        1: (x, y + 1),      #bottom neighbor
+        2: (x - 1, y),      #left neighbor
+        3: (x, y - 1)       #top neighbor
+    }
+    while any(0 in t for t in tags_matrix):
+        tag += 1    #Empieza una nueva vecindad
+        tags_matrix[x][y] = tag     #El pixel actual se agrega a la vecindad
+        has_neighbor = True
+        while has_neighbor:
+            pixel = image.getpixel((x, y))[0]
+            try:
+                right = image.getpixel(neighbors_dictionary[0])[0]
+            except IndexError:
+                right = 1000            #Se le asigna un valor muy alto para que no sobrepase el umbral cuando se revise
+            try:
+                bottom = image.getpixel(neighbors_dictionary[1])[0]
+            except IndexError:
+                bottom = 1000
+            try:
+                left = image.getpixel(neighbors_dictionary[2])[0]
+            except IndexError:
+                left = 1000
+            try:
+                top = image.getpixel(neighbors_dictionary[3])[0]
+            except IndexError:
+                top = 1000
+            neighborhood = [right, bottom, left, top]   #Lista con los pixeles adyacentes
+            for index in xrange(len(neighborhood)):
+                coords = neighbors_dictionary[index]    #coordenadas del pixel adyacente que se va a revisar
+                #Si el pixel adyacente no sobrepasa el umbral para considerlo como vecino
+                if abs(pixel - neighborhood[index]) <= threshold:
+                    #Si el pixel adyacente no pertence a un vecindario
+                    if tags_matrix[coords[0]][coords[1]] == 0:
+                        print str(x) + ", " + str(y) + " es vecino de: " + str(coords)
+                        tags_matrix[coords[0]][coords[1]] = tag     #Se agrega el pixel vecino a la vecindad
+                        x = coords[0]
+                        y = coords[1]                           #El siguiente pixel a revisar sera el que recie fue agregado a la vecindad
+                        neighbors_dictionary = {
+                            0: (x + 1, y),
+                            1: (x, y + 1),
+                            2: (x - 1, y),
+                            3: (x, y - 1)
+                        }   #actualiza neighbors_dictionary con las coordenadas de los pixels adyacentes del siguiente pixel a revisar
+                        print "Siguiente pixel: " + str(coords)
+                        has_neighbor = True
+                        break
+                    elif index == 3:        #Si los 4 pixeles adyacentes son su vecinos pero ya estan en un vecindario
+                        tags_matrix[x][y] = tags_matrix[coords[0]][coords[1]]   #Se agrega el pixel actual al mismo vecindario que tienen sus pixeles adyacentes
+                        has_neighbor = False
+                elif coords[0] in xrange(size[0]) and coords[1] in xrange(size[1]):     #Si la coordena existe en la imagen
+                    next_coords = coords    #El siguiente pixel sera la primer incidencia donde no se encontro vecindad
+                if index == 3:
+                    print str(x) + ", " + str(y) + " no tiene vecinos!!!!!!!!"
+                    has_neighbor = False    #No se encontro ningun vecino
+                    print "Siguiente pixel a revisar: " + str(next_coords)
+        x = next_coords[0]
+        y = next_coords[1]
+        neighbors_dictionary = {
+            0: (x + 1, y),
+            1: (x, y + 1),
+            2: (x - 1, y),
+            3: (x, y - 1)
+        }   #actualiza neighbors_dictionary con las coordenadas de los pixels adyacentes del siguiente pixel a revisar
+        print "sigue habiendo 0s"
+        print "Vecindades: " + str(tag)
+    f = open("/home/omar/Downloads/urban-octo-waffle/vecindades/output_files/matriz_vecindades.txt", "w")
     for m in xrange(size[0]):
         for n in xrange(size[1]):
             f.write(str(tags_matrix[m][n]) + " ")
         f.write("\n")
     f.close()
+    colors = int(256 / tag)
+    for height in xrange(size[1]):
+        for width in xrange(size[0]):
+            color = (tags_matrix[width][height] * colors) - 1
+            image.putpixel((width, height), (color, color, color))
+    print "Termine"
     return image
